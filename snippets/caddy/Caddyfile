@@ -13,7 +13,7 @@ BIRDNET_HOSTNAME {
         }
     }
 
-    reverse_proxy 127.0.0.1:8081
+    reverse_proxy 127.0.0.1:BIRDNET_PORT
 }
 
 SAEZURI_HOSTNAME {
@@ -28,5 +28,5 @@ SAEZURI_HOSTNAME {
     # Uncomment to embed the collage in a Home Assistant panel view.
     # header Content-Security-Policy "frame-ancestors 'self' https://HA_HOSTNAME"
 
-    reverse_proxy 127.0.0.1:8090
+    reverse_proxy 127.0.0.1:SAEZURI_PORT
 }

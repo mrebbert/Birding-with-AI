@@ -76,6 +76,8 @@ Every snippet uses the same placeholder names. Replace them once and the files f
 | `RTSP_TOKEN` | Stream token, one per quality level | `Ab3xY9qZ` |
 | `BIRDNET_HOSTNAME` | Public name of the BirdNET-Go interface | `birdnet.example.lan` |
 | `SAEZURI_HOSTNAME` | Public name of the collage | `birds.example.lan` |
+| `HA_HOSTNAME` | Home Assistant address, for the frame-ancestors header | `home.example.lan` |
+| `BIRDNET_PORT`, `SAEZURI_PORT` | Loopback ports the reverse proxy forwards to | `8081`, `8090` |
 | `MQTT_HOST` | MQTT broker | `mqtt.example.lan` |
 | `MQTT_USER`, `MQTT_PASSWORD` | Broker credentials | `birdnet` |
 | `LATITUDE`, `LONGITUDE` | Site coordinates; they drive the range filter | `52.52`, `13.40` |

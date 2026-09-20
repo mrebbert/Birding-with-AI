@@ -42,6 +42,10 @@ This writes `build/` with your values substituted and leaves `snippets/` untouch
 on the runbook names the file in `build/` and links the template it came from. `build/` and `.env` stay out
 of git.
 
+The `.env` ends up in two places: this one feeds the helper scripts, and step 2 copies it next to the
+Compose file on the server, where Docker reads it. Scripts that work against the server take that path as
+an argument.
+
 Working without the script is fine too: copy the files from `snippets/` by hand and replace the
 placeholders as you go.
 
@@ -69,7 +73,7 @@ The script runs this command with the values from your `.env`:
 ```bash
 docker run --rm --entrypoint ffmpeg ghcr.io/tphakala/birdnet-go:latest \
   -hide_banner -rtsp_transport tcp -timeout 5000000 \
-  -i rtsp://CAMERA_HOST:7447/RTSP_TOKEN \
+  -i rtsp://CAMERA_HOST:RTSP_PORT/RTSP_TOKEN \
   -vn -t 10 -f null -
 ```
 
@@ -102,7 +106,7 @@ frequencies, which is exactly where bird calls live.
 ## Step 2: directories and Compose blocks
 
 ```bash
-ss -ltnp | grep -E ':(8081|8090) '     # both ports must be free
+ss -ltnp | grep -E ':(8081|8090) '     # BIRDNET_PORT and SAEZURI_PORT must be free
 mkdir -p /srv/docker/birdnet-go/{config,data}
 mkdir -p /srv/docker/saezuri/{illustrations,calls}
 chown -R 1000:1000 /srv/docker/saezuri
@@ -177,8 +181,9 @@ Check name resolution inside the container first. The image carries no network t
 docker compose exec birdnet-go getent hosts MQTT_HOST
 ```
 
-Then open Settings → Integrations → MQTT in the interface: broker `tcp://MQTT_HOST:1883`, user `MQTT_USER`,
-topic `birdnet`, Home Assistant discovery enabled.
+Then open Settings → Integrations → MQTT in the interface: broker `tcp://MQTT_HOST:MQTT_PORT`, user
+`MQTT_USER`, topic `MQTT_TOPIC`, Home Assistant discovery enabled. These four values live in your `.env` as
+documentation; BirdNET-Go stores them itself, so no file substitutes them.
 
 ```bash
 docker compose logs --since 5m birdnet-go | grep -i mqtt
@@ -241,7 +246,8 @@ tile stays absent even though the detection arrived. Saezuri first downloads fro
 `vrwrts/saezuri-illustrations` (free, no account); for species missing there it generates artwork in the
 same style through the Gemini API, provided a key is configured.
 
-Keep the key in `/srv/docker/.env` and reference it from the Compose block:
+Keep the key in the `.env` next to your Compose file, the one Docker reads, and reference it from the
+Compose block:
 
 ```bash
 echo 'GEMINI_API_KEY=AIza…' >> /srv/docker/.env
@@ -266,7 +272,7 @@ hands out an OAuth token that the API rejects with `400`, and failed attempts lo
 `_art-state.json` until you clear the markers. Verify the key before restarting:
 
 ```bash
-./snippets/scripts/check-gemini-key.sh
+./snippets/scripts/check-gemini-key.sh /srv/docker/.env
 ```
 
 Watch progress straight on the directory; `docker compose logs … | grep -i saezuri-generate` names the

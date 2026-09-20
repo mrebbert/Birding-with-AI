@@ -65,7 +65,7 @@ OAuth access token (`AQ.Ab8…`, 53 characters). A usable API key starts with `A
 restarting:
 
 ```bash
-./snippets/scripts/check-gemini-key.sh
+./snippets/scripts/check-gemini-key.sh /srv/docker/.env
 ```
 
 Expect `200`. A `403` means the Generative Language API is switched off in the project. Billing and key
