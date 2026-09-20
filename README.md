@@ -1,3 +1,11 @@
+<p align="center">
+  <img src="img/saezuri.png"
+       alt="Saezuri collage: seven bird species heard in the last 24 hours, drawn in Japanese woodblock style"
+       width="520">
+</p>
+
+<p align="center"><em>Saezuri, showing what the garden microphone heard in the last 24 hours.</em></p>
+
 # Birding with AI
 
 Turn an IP camera you already own into a bird recorder. [BirdNET-Go](https://github.com/tphakala/birdnet-go)
@@ -65,6 +73,7 @@ Then follow [RUNBOOK.md](RUNBOOK.md) from step 0. It takes about 60 minutes incl
 | [docs/troubleshooting.md](docs/troubleshooting.md) | Every trap this installation hit, with the fix |
 | [snippets/](snippets/) | Compose file, Caddyfile, Home Assistant YAML, all carrying placeholders |
 | [snippets/scripts/](snippets/scripts/) | Four helper scripts, all reading the same `.env` |
+| [img/](img/) | Screenshots used in the documentation |
 
 ## Placeholders
 
