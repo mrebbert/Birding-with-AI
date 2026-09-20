@@ -50,4 +50,4 @@ done < <(find "$OUT" -type f ! -name 'docker-compose.yml')
 
 echo
 echo "Ready in $OUT. Remaining values (MQTT credentials, coordinates) go into"
-echo "the BirdNET-Go setup assistant, see RUNBOOK.md step 4 and step 5."
+echo "the BirdNET-Go settings pages, see RUNBOOK.md step 4 and step 5."

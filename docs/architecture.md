@@ -28,11 +28,12 @@ BirdNET evaluates up to 15 kHz. Only the Opus track covers that range, and ffmpe
 Cameras with a single 16 kHz track still work, they just lose the high calls: treecreepers, goldcrests, and
 most warbler alarm calls sit above 8 kHz.
 
-## The setup assistant instead of a handwritten `config.yaml`
+## The web interface instead of a handwritten `config.yaml`
 
 The key names in BirdNET-Go's configuration file have changed several times between versions. The container
-writes the file itself and reloads changes without a restart, so the assistant stays correct across
-upgrades while a copied file silently stops matching.
+writes the file itself and reloads changes without a restart, so clicking through the settings pages stays
+correct across upgrades while a copied file silently stops matching. The key names in the runbook serve as
+a reference for reading `config.yaml`, not as a template to write.
 
 ## BirdNET v2.4 rather than Google Perch v2
 

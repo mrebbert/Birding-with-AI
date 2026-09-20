@@ -22,7 +22,7 @@ dashboard.
    `threshold: 0.5`. The overlap makes BirdNET-Go require ten hits inside a 15-second window, and that run
    carries the confidence a single high threshold would otherwise carry alone. More species arrive without
    more noise, at a CPU cost in proportion. The table in
-   [RUNBOOK step 4](../RUNBOOK.md#the-settings-that-decide-detection-quality) lists the other overlap
+   [RUNBOOK step 4](../RUNBOOK.md#detection-and-filters) lists the other overlap
    values.
 5. **The confidence threshold on its own.** Without the overlap, lower it in small steps only, for instance
    from 0.8 to 0.7, and watch what arrives over the next few mornings.

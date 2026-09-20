@@ -20,7 +20,7 @@ Three directories hold everything worth keeping:
 
 | Path | Contents |
 |---|---|
-| `/srv/docker/birdnet-go/config` | configuration written by the setup assistant |
+| `/srv/docker/birdnet-go/config` | `config.yaml`, written by the interface |
 | `/srv/docker/birdnet-go/data` | SQLite database with every detection |
 | `/srv/docker/saezuri` | illustrations and reference calls |
 
