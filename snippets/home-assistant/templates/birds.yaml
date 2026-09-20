@@ -1,0 +1,95 @@
+# Four trigger-based template sensors in one block, so the same event advances
+# them together.
+#
+# Place in <config>/templates/birds.yaml with
+#   template: !include_dir_merge_list templates/
+# in configuration.yaml. The file is a list for exactly that reason.
+#
+# Replace SOURCE_SLUG with the source name BirdNET-Go uses in its entity IDs.
+# Check the confidence scale in Developer tools first: if it reads 82 rather
+# than 0.82, the threshold below becomes 75.
+
+- trigger:
+    - trigger: state
+      id: detection
+      entity_id: sensor.birdnet_go_SOURCE_SLUG_last_species
+      not_to:
+        - unknown
+        - unavailable
+        - ""
+    - trigger: time
+      id: day_rollover
+      at: "00:00:00"
+    # Without this one the counters read unknown after every restart.
+    - trigger: homeassistant
+      id: start
+      event: start
+    # Fire from Developer tools -> Events to clear both species lists.
+    - trigger: event
+      id: reset
+      event_type: bird_reset
+  condition:
+    - condition: or
+      conditions:
+        - condition: template
+          value_template: "{{ trigger.id != 'detection' }}"
+        - condition: numeric_state
+          entity_id: sensor.birdnet_go_SOURCE_SLUG_confidence
+          above: 0.75
+  sensor:
+    # Holds the last valid species. The raw entity falls back to empty states
+    # between detections.
+    - name: "Last Bird Species"
+      unique_id: last_bird_species
+      icon: mdi:bird
+      state: "{{ trigger.to_state.state if trigger.id == 'detection' else this.state }}"
+      attributes:
+        scientific_name: >-
+          {{ states('sensor.birdnet_go_SOURCE_SLUG_scientific_name')
+             if trigger.id == 'detection' else this.attributes.get('scientific_name', '') }}
+        confidence: >-
+          {{ states('sensor.birdnet_go_SOURCE_SLUG_confidence') | float(0)
+             if trigger.id == 'detection' else this.attributes.get('confidence', 0) }}
+        detected_at: >-
+          {{ now().isoformat() if trigger.id == 'detection'
+             else this.attributes.get('detected_at', '') }}
+
+    # Every species since the list was last cleared.
+    - name: "Bird Species Total"
+      unique_id: bird_species_total
+      icon: mdi:format-list-bulleted
+      state: >-
+        {{ 0 if trigger.id == 'reset' else
+           ((this.attributes.get('species', []) +
+             ([trigger.to_state.state] if trigger.id == 'detection' else []))
+            | unique | list | count) }}
+      attributes:
+        species: >-
+          {{ [] if trigger.id == 'reset' else
+             ((this.attributes.get('species', []) +
+               ([trigger.to_state.state] if trigger.id == 'detection' else []))
+              | unique | list | sort) }}
+
+    # Same list, cleared at midnight.
+    - name: "Bird Species Today"
+      unique_id: bird_species_today
+      icon: mdi:calendar-today
+      state: >-
+        {{ 0 if trigger.id in ['reset', 'day_rollover'] else
+           ((this.attributes.get('species', []) +
+             ([trigger.to_state.state] if trigger.id == 'detection' else []))
+            | unique | list | count) }}
+      attributes:
+        species: >-
+          {{ [] if trigger.id in ['reset', 'day_rollover'] else
+             ((this.attributes.get('species', []) +
+               ([trigger.to_state.state] if trigger.id == 'detection' else []))
+              | unique | list | sort) }}
+
+    - name: "Bird Detections Today"
+      unique_id: bird_detections_today
+      icon: mdi:waveform
+      state_class: total_increasing
+      state: >-
+        {{ 0 if trigger.id in ['reset', 'day_rollover'] else
+           (this.state | int(0) + (1 if trigger.id == 'detection' else 0)) }}

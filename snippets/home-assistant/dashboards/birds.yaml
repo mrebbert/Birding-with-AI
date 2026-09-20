@@ -1,0 +1,97 @@
+# Dashboard "Birds".
+#
+# Settings -> Dashboards -> Add dashboard, then three-dot menu -> Raw
+# configuration editor and paste this.
+#
+# Needs the HACS cards ApexCharts and Mushroom plus the four sensors from
+# templates/birds.yaml. Replace SAEZURI_HOSTNAME with your collage address.
+
+views:
+  - title: Overview
+    path: overview
+    icon: mdi:bird
+    cards:
+      - type: custom:mushroom-template-card
+        entity: sensor.last_bird_species
+        primary: "{{ states('sensor.last_bird_species') }}"
+        secondary: >-
+          {{ state_attr('sensor.last_bird_species', 'scientific_name') }} ·
+          {{ (state_attr('sensor.last_bird_species', 'confidence') | float(0) * 100) | round(0) }} % ·
+          {{ as_timestamp(state_attr('sensor.last_bird_species', 'detected_at'), 0) | timestamp_custom('%H:%M', true) }}
+        icon: mdi:bird
+        icon_color: >-
+          {{ 'green' if state_attr('sensor.last_bird_species', 'confidence') | float(0) >= 0.8 else 'orange' }}
+        multiline_secondary: true
+
+      # entity: on each card, so a tap opens the entity with its history.
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-template-card
+            entity: sensor.bird_species_total
+            primary: "{{ states('sensor.bird_species_total') }}"
+            secondary: Species total
+            icon: mdi:format-list-bulleted
+            icon_color: teal
+          - type: custom:mushroom-template-card
+            entity: sensor.bird_species_today
+            primary: "{{ states('sensor.bird_species_today') }}"
+            secondary: Species today
+            icon: mdi:calendar-today
+            icon_color: teal
+          - type: custom:mushroom-template-card
+            entity: sensor.bird_detections_today
+            primary: "{{ states('sensor.bird_detections_today') }}"
+            secondary: Detections today
+            icon: mdi:waveform
+            icon_color: teal
+
+      - type: custom:mushroom-entity-card
+        entity: binary_sensor.birdnet_go_status
+        name: BirdNET-Go
+        icon: mdi:server-network
+
+      - type: custom:apexcharts-card
+        header:
+          show: true
+          title: Detections per hour
+        graph_span: 24h
+        span:
+          start: day
+        series:
+          - entity: sensor.bird_detections_today
+            name: Detections
+            type: column
+            group_by:
+              func: diff
+              duration: 1h
+              # Without this, hours without a data point draw null instead of zero.
+              fill: zero
+
+      - type: markdown
+        title: Heard today
+        content: >-
+          {% set species = state_attr('sensor.bird_species_today', 'species') %}
+          {{ species | join(', ') if species else 'Nothing detected yet.' }}
+
+      - type: markdown
+        title: All species
+        content: >-
+          **{{ states('sensor.bird_species_total') }} species since the start**
+
+          {{ state_attr('sensor.bird_species_total', 'species') | join(', ') }}
+
+      # The raw entity would record every empty state as Unknown and Unavailable.
+      - type: logbook
+        title: History
+        entities:
+          - sensor.last_bird_species
+        hours_to_show: 24
+
+  - title: Collage
+    path: collage
+    icon: mdi:image-multiple
+    panel: true
+    cards:
+      - type: iframe
+        url: https://SAEZURI_HOSTNAME
+        aspect_ratio: 100%

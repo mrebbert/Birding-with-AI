@@ -1,0 +1,48 @@
+# BirdNET-Go and Saezuri.
+#
+# Run this file on its own:
+#   docker compose --env-file ../.env -f docker-compose.yml up -d
+# or copy both service blocks into an existing stack; they need no extra network.
+#
+# Values come from .env, see .env.example.
+
+services:
+  birdnet-go:
+    image: ghcr.io/tphakala/birdnet-go:latest
+    container_name: birdnet-go
+    restart: unless-stopped
+    ports:
+      # Loopback only. The reverse proxy is the single entry point.
+      - "127.0.0.1:${BIRDNET_PORT:-8081}:8080"
+    environment:
+      TZ: ${TZ:-Europe/Berlin}
+      BIRDNET_UID: "${PUID:-1000}"
+      BIRDNET_GID: "${PGID:-1000}"
+      # Hostname used for links in notifications behind the reverse proxy.
+      BIRDNET_HOST: ${BIRDNET_HOSTNAME}
+    volumes:
+      - ./birdnet-go/config:/config
+      - ./birdnet-go/data:/data
+    tmpfs:
+      # Spectrograms of recent detections. RAM disk on purpose, no backup needed.
+      - /config/hls:size=50m,uid=1000,gid=1000
+
+  saezuri:
+    image: ghcr.io/vrwrts/saezuri:latest
+    container_name: saezuri
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${SAEZURI_PORT:-8090}:8080"
+    environment:
+      # Container name and container port, not the published loopback port.
+      BIRDNETGO_URL: http://birdnet-go:8080
+      SPECIES_DICT_LOCALES: ${SPECIES_DICT_LOCALES:-en}
+      # Only needed once BirdNET-Go requires a token; create it in its interface.
+      # BIRDNETGO_TOKEN: ${BIRDNETGO_TOKEN}
+      # Optional: generates artwork for species missing from the free library.
+      # GEMINI_API_KEY: ${GEMINI_API_KEY}
+    volumes:
+      # Both directories must belong to 1000:1000 on the host:
+      #   chown -R 1000:1000 ./saezuri
+      - ./saezuri/illustrations:/data/illustrations
+      - ./saezuri/calls:/data/calls

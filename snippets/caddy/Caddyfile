@@ -1,0 +1,32 @@
+# Two virtual hosts in front of the loopback ports.
+# Caddy runs in the host network here, hence 127.0.0.1 rather than container names.
+# Substitute the placeholders with ./snippets/scripts/apply-placeholders.sh.
+
+BIRDNET_HOSTNAME {
+    encode gzip zstd
+
+    # Internal CA. Drop this block and Caddy obtains a public certificate
+    # through ACME, which needs a publicly resolvable name.
+    tls {
+        issuer internal {
+            lifetime 720h
+        }
+    }
+
+    reverse_proxy 127.0.0.1:8081
+}
+
+SAEZURI_HOSTNAME {
+    encode gzip zstd
+
+    tls {
+        issuer internal {
+            lifetime 720h
+        }
+    }
+
+    # Uncomment to embed the collage in a Home Assistant panel view.
+    # header Content-Security-Policy "frame-ancestors 'self' https://HA_HOSTNAME"
+
+    reverse_proxy 127.0.0.1:8090
+}

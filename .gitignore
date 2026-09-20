@@ -1,0 +1,22 @@
+# Secrets: keep every real value out of the repository
+.env
+*.env
+!*.env.example
+secrets/
+
+# Local working copies produced by apply-placeholders.sh
+build/
+out/
+
+# Container data, never commit
+birdnet-go/
+saezuri/
+*.db
+*.sqlite
+*.bak
+
+# Editor and OS noise
+.DS_Store
+.idea/
+.vscode/
+*.swp

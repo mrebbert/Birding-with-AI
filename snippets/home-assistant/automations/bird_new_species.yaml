@@ -1,0 +1,29 @@
+# One notification per species new to the garden.
+#
+# Place in <config>/automations/bird_new_species.yaml with
+#   automation: !include_dir_merge_list automations/
+# in configuration.yaml.
+#
+# Replace NOTIFY_SERVICE with your notify service.
+
+- alias: "Bird: new species in the garden"
+  id: bird_new_species
+  triggers:
+    - trigger: state
+      entity_id: sensor.bird_species_total
+      attribute: species
+  conditions:
+    # Fire on growth only, so a reset stays quiet.
+    - condition: template
+      value_template: >-
+        {{ trigger.to_state.attributes.species | count >
+           trigger.from_state.attributes.species | count }}
+  actions:
+    - action: NOTIFY_SERVICE
+      data:
+        title: "New bird species in the garden"
+        message: >-
+          {{ states('sensor.last_bird_species') }}
+          ({{ state_attr('sensor.last_bird_species', 'scientific_name') }}),
+          species number {{ states('sensor.bird_species_total') }}
+  mode: queued
