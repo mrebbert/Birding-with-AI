@@ -24,15 +24,47 @@ conversations on the pavement, so the BirdNET-Go privacy filter stays on. See
 | CPU load | around 34 % of the machine for one stream |
 | Result | detections every day, no restarts, no measurable system load |
 
-Replace the placeholders (`CAMERA_HOST`, `RTSP_TOKEN`, `BIRDNET_HOSTNAME`, …) with your own values. The
-table in the [README](README.md#placeholders) lists them all, and
-`snippets/scripts/apply-placeholders.sh` substitutes them from your `.env`.
+---
+
+## Preparation: fill in your values once
+
+Every snippet in this repository carries literal placeholders (`CAMERA_HOST`, `BIRDNET_HOSTNAME`,
+`SOURCE_SLUG`, …); the [README](README.md#placeholders) lists them all. Fill them in once and every file
+below fits together:
+
+```bash
+cp snippets/.env.example .env
+$EDITOR .env
+./snippets/scripts/apply-placeholders.sh
+```
+
+This writes `build/` with your values substituted and leaves `snippets/` untouched as the source. From here
+on the runbook names the file in `build/` and links the template it came from. `build/` and `.env` stay out
+of git.
+
+Working without the script is fine too: copy the files from `snippets/` by hand and replace the
+placeholders as you go.
+
+Four helper scripts come along, all reading the same `.env`:
+
+| Script | Purpose | Used in |
+|---|---|---|
+| `apply-placeholders.sh` | writes `build/` from `snippets/` and `.env` | here |
+| `check-rtsp-stream.sh` | ten seconds of camera audio through ffmpeg | step 0 |
+| `check-gemini-key.sh` | verifies the Gemini API key before a restart | step 7 |
+| `reset-illustration-misses.sh` | unlocks species Saezuri gave up on | [troubleshooting](docs/troubleshooting.md#illustrations) |
 
 ---
 
 ## Step 0: verify the stream
 
 The BirdNET-Go image ships ffmpeg, so test without installing anything:
+
+```bash
+./snippets/scripts/check-rtsp-stream.sh
+```
+
+The script runs this command with the values from your `.env`:
 
 ```bash
 docker run --rm --entrypoint ffmpeg ghcr.io/tphakala/birdnet-go:latest \
@@ -77,9 +109,16 @@ chown -R 1000:1000 /srv/docker/saezuri
 id                                      # UID and GID for the Compose block
 ```
 
-Take the service definitions from [`snippets/docker-compose.yml`](snippets/docker-compose.yml) and the
-variables from [`snippets/.env.example`](snippets/.env.example). Three points decide whether the stack comes
-up:
+Copy the service definitions from `build/docker-compose.yml` into `/srv/docker/docker-compose.yml` and your
+`.env` next to it. The file reads its values through `${VARIABLE}` substitution, which is why the
+placeholder script passes it through unchanged. Template:
+[`snippets/docker-compose.yml`](snippets/docker-compose.yml), variables:
+[`snippets/.env.example`](snippets/.env.example).
+
+Run the stack from `/srv/docker`, not from `build/`: the volume paths are relative to the Compose file, and
+`apply-placeholders.sh` empties `build/` on every run.
+
+Three points decide whether the stack comes up:
 
 - **`chown` on the Saezuri directories is mandatory.** The container runs as 1000:1000 and otherwise aborts
   with `… is not writable by uid 1000:1000`. The `docker run … alpine chown` the log suggests applies to
@@ -90,8 +129,9 @@ up:
 
 ## Step 3: reverse proxy
 
-[`snippets/caddy/Caddyfile`](snippets/caddy/Caddyfile) holds both virtual hosts. Caddy runs in the host
-network in this setup, hence loopback addresses rather than container names. Validate the configuration and
+`build/caddy/Caddyfile` holds both virtual hosts with your hostnames already in place (template:
+[`snippets/caddy/Caddyfile`](snippets/caddy/Caddyfile)). Caddy runs in the host network in this setup, hence
+loopback addresses rather than container names. Validate the configuration and
 reload afterwards:
 
 ```bash
@@ -154,11 +194,12 @@ successfully`. Home Assistant gains `binary_sensor.birdnet_go_status` plus, per 
 
 ## Step 6: species list and notification in Home Assistant
 
-Copy [`snippets/home-assistant/templates/birds.yaml`](snippets/home-assistant/templates/birds.yaml) into
-your `templates/` directory and
-[`snippets/home-assistant/automations/bird_new_species.yaml`](snippets/home-assistant/automations/bird_new_species.yaml)
-into `automations/`. Both files come in list form, which is what `!include_dir_merge_list` in
-`configuration.yaml` expects.
+Copy `build/home-assistant/templates/birds.yaml` into your Home Assistant `templates/` directory and
+`build/home-assistant/automations/bird_new_species.yaml` into `automations/`. Both carry your `SOURCE_SLUG`
+and your notify service already; the templates are
+[`snippets/home-assistant/templates/birds.yaml`](snippets/home-assistant/templates/birds.yaml) and
+[`snippets/home-assistant/automations/bird_new_species.yaml`](snippets/home-assistant/automations/bird_new_species.yaml).
+Both files come in list form, which is what `!include_dir_merge_list` in `configuration.yaml` expects.
 
 All four sensors share one trigger block so the same event advances them together. Four design decisions
 carry the file:
@@ -241,8 +282,8 @@ directory, owned by 1000:1000.
 ## Step 8: the Home Assistant dashboard
 
 Create a dashboard under Settings → Dashboards → Add dashboard, then paste
-[`snippets/home-assistant/dashboards/birds.yaml`](snippets/home-assistant/dashboards/birds.yaml) into the
-raw configuration editor. It needs the HACS cards ApexCharts and Mushroom plus the four sensors from step 6.
+`build/home-assistant/dashboards/birds.yaml` into the raw configuration editor (template:
+[`snippets/home-assistant/dashboards/birds.yaml`](snippets/home-assistant/dashboards/birds.yaml)). It needs the HACS cards ApexCharts and Mushroom plus the four sensors from step 6.
 
 Three details proved necessary in operation:
 

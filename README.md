@@ -63,7 +63,8 @@ Then follow [RUNBOOK.md](RUNBOOK.md) from step 0. It takes about 60 minutes incl
 | [docs/tuning.md](docs/tuning.md) | Raising detection quality and removing false positives |
 | [docs/operations.md](docs/operations.md) | Updates, backup, scaling, rollback |
 | [docs/troubleshooting.md](docs/troubleshooting.md) | Every trap this installation hit, with the fix |
-| [snippets/](snippets/) | Compose file, Caddyfile, Home Assistant YAML, helper scripts |
+| [snippets/](snippets/) | Compose file, Caddyfile, Home Assistant YAML, all carrying placeholders |
+| [snippets/scripts/](snippets/scripts/) | Four helper scripts, all reading the same `.env` |
 
 ## Placeholders
 
@@ -81,8 +82,10 @@ Every snippet uses the same placeholder names. Replace them once and the files f
 | `SOURCE_SLUG` | How BirdNET-Go names the audio source inside entity IDs | `backyard` |
 | `NOTIFY_SERVICE` | Home Assistant notify service | `notify.mobile_app_pixel` |
 
-`snippets/scripts/apply-placeholders.sh` substitutes all of them from your `.env` into a copy of the
-snippets, so the originals stay reusable.
+`snippets/scripts/apply-placeholders.sh` substitutes all of them from your `.env` into `build/`, so the
+originals stay reusable. The runbook then names the file in `build/` at each step; see
+[Preparation](RUNBOOK.md#preparation-fill-in-your-values-once). Replacing the placeholders by hand works
+just as well.
 
 ## Privacy and law
 
