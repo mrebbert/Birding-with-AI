@@ -12,7 +12,8 @@
 hardware. [BirdNET-Go](https://github.com/tphakala/birdnet-go) reads the camera's audio over RTSP,
 identifies the species, and publishes every detection to [Home Assistant](https://www.home-assistant.io/)
 over MQTT. [Saezuri](https://github.com/vrwrts/saezuri) renders the same detections as an illustrated
-collage. Everything runs self-hosted in two Docker containers.
+collage. Everything runs self-hosted in two Docker containers, on your hardware, without a cloud account:
+the audio never leaves the machine and the recognition runs locally.
 
 This repository holds a vendor-neutral runbook and the configuration snippets behind it. It comes from one
 working installation and states which parts are verified and which are choices you may want to revisit.
@@ -39,6 +40,7 @@ flowchart LR
 | Extra hardware | None |
 | CPU load | Around 34 % of an AMD Athlon 3000G per audio stream |
 | Runs on | Docker Compose, x86 or ARM, a Raspberry Pi included |
+| Data flow | Local. Audio and recognition stay on your machine, no account, no upload |
 | Setup time | About 60 minutes including verification |
 | Cost | Free, except optional artwork generation at roughly 0.04 US dollars per image |
 | License | MIT |
@@ -115,6 +117,29 @@ originals stay reusable. The runbook then names the file in `build/` at each ste
 [Preparation](RUNBOOK.md#preparation-fill-in-your-values-once). Replacing the placeholders by hand works
 just as well.
 
+## Local by default
+
+Every part that touches your audio runs on your own hardware. The camera stream reaches BirdNET-Go over
+your network, the model does its inference on that machine, and the detections land in a SQLite database
+next to it. No account, no API key and no upload are needed to detect a single bird, and the setup works
+on a network with no route to the internet.
+
+Four connections do leave the machine, all of them on the server side, none of them carrying your audio:
+
+| Connection | Purpose | How to avoid it |
+|---|---|---|
+| jsDelivr CDN | Saezuri downloads ready-made artwork from the free `vrwrts/saezuri-illustrations` library | Set `ILLUSTRATIONS_REPO` to empty and supply your own images |
+| Wikimedia Commons | Saezuri fetches one freely licensed reference call per species and caches it | Leave the species cards without a call |
+| Gemini API | Generates artwork for species the library lacks, at roughly 0.039 US dollars per image | Leave `GEMINI_API_KEY` unset; those species then show no tile |
+| Container registry | `docker compose pull` fetches new images | Update on your own schedule |
+
+The browser adds nothing: it talks only to Saezuri's own origin and to Home Assistant, never to a third
+party.
+
+BirdNET-Go can reach outwards for things this runbook leaves off: uploading detections to BirdWeather,
+fetching weather data, and error telemetry, which requires explicit opt-in. Each one is a switch in its
+settings, and each one stays off unless you turn it on.
+
 ## Privacy and law
 
 Camera microphones pick up conversations, including those of people passing by. This setup keeps that in
@@ -183,6 +208,20 @@ Home Assistant and Saezuri are additions. Skip steps 5, 6 and 8 of the runbook t
 Nothing for species covered by the free `vrwrts/saezuri-illustrations` library. For species missing there,
 Saezuri generates two images through the Gemini API at roughly 0.039 US dollars each, so about eight cents
 per species, once. The key stays optional; without it, uncovered species simply show no tile.
+
+### Does this send my audio to the cloud?
+
+No. The camera stream reaches BirdNET-Go over your own network and the recognition runs on that machine;
+no audio is uploaded anywhere. Detections stay in a local SQLite database. The only outbound connections
+are artwork downloads, one reference call per species, optional artwork generation and image pulls, all
+listed under [Local by default](#local-by-default).
+
+### Can it run fully offline?
+
+Yes, for detection. BirdNET-Go needs no internet connection to analyse audio, publish over MQTT or serve
+its interface. Saezuri without internet shows species that already have artwork cached; set
+`ILLUSTRATIONS_REPO` to empty and place your own images in the illustrations directory to keep it fully
+local.
 
 ### Is it legal to record audio from a camera microphone?
 

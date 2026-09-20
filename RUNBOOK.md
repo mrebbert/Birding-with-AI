@@ -7,7 +7,8 @@ detections to Home Assistant; Saezuri presents them as an illustrated collage.
 detections over the Compose network. Both containers publish on `127.0.0.1` only; the reverse proxy is the
 single entry point from the network.
 
-**Scope:** audio clips are discarded on purpose, only detections persist. Camera microphones also capture
+**Scope:** everything that touches the audio runs locally, on your own hardware, with no account and no
+upload. Audio clips are discarded on purpose, only detections persist. Camera microphones also capture
 conversations on the pavement, so the BirdNET-Go privacy filter stays on. See
 [README, Privacy and law](README.md#privacy-and-law).
 

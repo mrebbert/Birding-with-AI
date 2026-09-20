@@ -57,6 +57,14 @@ loopback port. The two services share a Compose network, so the detour through t
 Both projects move fast and ship fixes worth having. The rollback path runs over the digest of the previous
 image, which stays available locally after a pull. See [operations.md](operations.md#updates).
 
+## Local inference, outbound connections by exception
+
+The detector, the database and both web interfaces run on one machine with no dependency on a remote
+service. That decision costs the species set a cloud model could offer and buys independence from an
+account, an API quota and a provider's lifetime. The exceptions are listed in the
+[README](../README.md#local-by-default): artwork downloads, reference calls, optional artwork generation,
+image pulls. None of them carries audio, and each one has an off switch.
+
 ## Detections persist, audio does not
 
 Audio export stays off and the privacy filter stays on. The SQLite database under

@@ -8,7 +8,8 @@ abstract: >-
   audio, publishes detections to Home Assistant over MQTT, and Saezuri renders
   them as an illustrated collage. Covers stream verification, Docker Compose,
   a Caddy reverse proxy, Home Assistant template sensors, an automation and a
-  dashboard, detection tuning, operations and troubleshooting.
+  dashboard, detection tuning, operations and troubleshooting. Detection runs
+  locally: the audio never leaves the machine and no cloud account is required.
 authors:
   - family-names: Rebbert
     given-names: Markus
@@ -26,4 +27,7 @@ keywords:
   - UniFi Protect
   - Docker Compose
   - self-hosted
+  - local-first
+  - privacy
+  - offline
   - runbook
