@@ -13,7 +13,7 @@ conversations on the pavement, so the BirdNET-Go privacy filter stays on. See
 
 **Duration:** about 60 minutes including verification.
 
-**Reference deployment**, verified over 13 days of continuous operation:
+**Reference deployment**, verified in continuous operation:
 
 | | Value |
 |---|---|

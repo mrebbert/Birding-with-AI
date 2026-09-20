@@ -43,7 +43,7 @@ does not call over a suburban garden.
 
 Then raise the range filter rather than the per-species threshold. It generalises; a threshold does not.
 
-## What 13 days of operation showed
+## What continuous operation showed
 
 Detections arrive every day without gaps, the template sensors hold their state across restarts once the
 start trigger is in place, and the collage fills gradually because each species waits for its two images.
