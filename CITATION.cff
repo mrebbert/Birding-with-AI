@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+title: "Birding with AI: bird detection from an IP camera with BirdNET-Go, MQTT and Home Assistant"
+message: "If you use this runbook, please cite it as below."
+type: software
+abstract: >-
+  A self-hosted runbook and configuration snippets for detecting birds by sound
+  with a security camera you already own. BirdNET-Go analyses the camera's RTSP
+  audio, publishes detections to Home Assistant over MQTT, and Saezuri renders
+  them as an illustrated collage. Covers stream verification, Docker Compose,
+  a Caddy reverse proxy, Home Assistant template sensors, an automation and a
+  dashboard, detection tuning, operations and troubleshooting.
+authors:
+  - family-names: Rebbert
+    given-names: Markus
+repository-code: "https://github.com/mrebbert/Birding-with-AI"
+license: MIT
+date-released: "2026-09-20"
+keywords:
+  - BirdNET
+  - BirdNET-Go
+  - bird detection
+  - bioacoustics
+  - RTSP
+  - MQTT
+  - Home Assistant
+  - UniFi Protect
+  - Docker Compose
+  - self-hosted
+  - runbook
