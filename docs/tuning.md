@@ -18,9 +18,15 @@ dashboard.
    BirdNET evaluates from 150 Hz upwards anyway.
 3. **The range filter.** It weighs all species by region and season, and it catches future candidates of the
    same kind without per-species work. This is the durable control.
-4. **The confidence threshold.** Lower it only after a few mornings of data, for instance from 0.8 to 0.7.
-   Deep detection absorbs most of the extra false positives.
-5. **Per-species thresholds.** Worth it only when a species returns despite an active range filter.
+4. **Deep detection with a lower threshold.** The project recommends `overlap: 2.7` together with
+   `threshold: 0.5`. The overlap makes BirdNET-Go require ten hits inside a 15-second window, and that run
+   carries the confidence a single high threshold would otherwise carry alone. More species arrive without
+   more noise, at a CPU cost in proportion. The table in
+   [RUNBOOK step 4](../RUNBOOK.md#the-settings-that-decide-detection-quality) lists the other overlap
+   values.
+5. **The confidence threshold on its own.** Without the overlap, lower it in small steps only, for instance
+   from 0.8 to 0.7, and watch what arrives over the next few mornings.
+6. **Per-species thresholds.** Worth it only when a species returns despite an active range filter.
 
 ## Removing a false positive
 

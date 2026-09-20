@@ -151,26 +151,81 @@ docker compose up -d birdnet-go
 docker compose logs -f birdnet-go
 ```
 
-Work through the setup assistant at `https://BIRDNET_HOSTNAME`:
+The container starts empty and opens a setup assistant at `https://BIRDNET_HOSTNAME`. Work through it
+first, then visit the settings pages: the assistant brings the system up, the settings decide how well it
+detects.
 
-| Setting | Value |
-|---|---|
-| Location | `LATITUDE` / `LONGITUDE` |
-| Language and species names | your locale |
-| Audio source | the RTSP URL from step 0, transport `tcp` |
-| Model | BirdNET v2.4 |
-| Audio export | off |
-| Privacy filter | on |
-| Login | set a password |
+### The assistant
 
-Set the password even on a private network: the interface contains a browser terminal with access to the
-container.
+It asks for seven things. The wording moves between versions, the substance stays.
 
-Configure through the assistant rather than by hand. The key names in `config.yaml` have changed several
+| Question | Value | Why |
+|---|---|---|
+| Node name | a name per host | Rides along in MQTT topics and identifies the source once a second machine joins |
+| Location, `LATITUDE` / `LONGITUDE` | your site, town-level accuracy is enough | Feeds the range filter, which weighs every species by region and season |
+| Language for species names | your locale | Decides the names in Home Assistant and in the collage; `de` and `en` are both common |
+| Audio source | the RTSP URL from step 0, transport `tcp` | UDP loses packets on a busy network and produces gaps in the analysis |
+| Model | BirdNET v2.4 | Around 6,500 species at about a third of a modern core per stream. Recent versions offer a model gallery here, Google Perch v2 among them: more species, ONNX, and noticeably more CPU. See [docs/architecture.md](docs/architecture.md) |
+| Audio export | off | Keeps clips of conversations off the disk; detections still persist in the database |
+| Web interface password | set one | The interface carries a browser terminal with access to the container, so this matters inside a private network too |
+
+Configure through the interface rather than by hand. The keys in `config.yaml` have changed names several
 times between versions; BirdNET-Go writes the file itself and picks changes up without a restart.
 
 **Checkpoint:** the interface reports 48000 Hz for the source, the level meter moves, and live listening
 works.
+
+### The settings that decide detection quality
+
+The assistant leaves these at their defaults. Open Settings once the first detections arrive; the
+`config.yaml` key stands next to each one so you can verify what the interface wrote.
+
+| Setting | Key | Start with | What it does |
+|---|---|---|---|
+| Confidence threshold | `birdnet.threshold` | 0.8 | Reports a detection from this confidence upwards. Lower it only after a few mornings of data |
+| Overlap | `birdnet.overlap` | 1.5, raise to 2.7 for deep detection | Smaller steps between analysis windows, so the model runs more often per second of audio |
+| Sensitivity | `birdnet.sensitivity` | 1.0 | Sigmoid sensitivity of the model. Leave it alone until threshold and overlap sit right |
+| Range filter threshold | `birdnet.rangefilter.threshold` | 0.01 | Minimum occurrence probability a species needs to stay a candidate |
+| Equalizer, high-pass at 150 Hz | `realtime.audio.equalizer` | on | Removes traffic rumble and wind; BirdNET evaluates from 150 Hz upwards anyway |
+| Privacy filter | `realtime.privacyfilter.enabled` | on | Drops segments carrying human speech. Recent versions already offer it in the assistant |
+| Dog bark filter | `realtime.dogbarkfilter.enabled` | on where dogs live nearby | Suppresses the species a bark regularly triggers |
+| Dynamic threshold | `realtime.dynamicthreshold.enabled` | on | Lowers the bar for a species for a while after a confident detection |
+| Retention | `realtime.audio.export.retention.policy` | irrelevant while export is off | Governs clip cleanup by age or disk usage |
+| Per-species threshold | `realtime.species.config` | empty | An override for the one species that keeps slipping through |
+
+**Deep detection.** Raising the overlap makes BirdNET-Go require several hits inside a 15-second window
+before it reports anything. The project computes the number as `max(1, 3 / max(0.1, 3.0 - overlap))`:
+
+| Overlap | Detections required | Character |
+|---|---|---|
+| 0.0 | 1 | plain BirdNET behaviour |
+| 2.4 | 5 | moderate |
+| 2.7 | 10 | the usual deep detection setting, paired with threshold 0.5 |
+| 2.9 | 30 | very strict |
+
+The pairing the project recommends is `overlap: 2.7` with `threshold: 0.5`: the run of ten hits carries the
+confidence that a single high threshold would otherwise have to carry alone, so more species arrive without
+more noise. It costs CPU in proportion, because the model runs that much more often. Measure with
+`docker stats birdnet-go` before and after, and see [docs/tuning.md](docs/tuning.md) for the order in which
+to turn these controls.
+
+**Range filter.** The threshold decides how unlikely a species may be and still count as a candidate. The
+project gives these bands:
+
+| Value | Effect |
+|---|---|
+| 0.01 | permissive, works for most locations, the default |
+| 0.05 to 0.1 | only species with a higher occurrence probability |
+| 0.1 to 0.3 | only species with a strong occurrence probability |
+| 0.5 and above | only the most common species of your area |
+
+Start at the default and raise it in steps when species appear that do not live near you. This is the
+control that generalises; a per-species threshold fixes one name and leaves the next one open.
+
+The full list of keys lives in the project's
+[configuration reference](https://github.com/tphakala/birdnet-go/wiki/configuration-reference), the
+background on both controls in the
+[BirdNET-Go guide](https://github.com/tphakala/birdnet-go/wiki/BirdNET-Go-Guide).
 
 ## Step 5: MQTT and Home Assistant
 
