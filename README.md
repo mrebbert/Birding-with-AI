@@ -36,7 +36,7 @@ flowchart LR
 | Input | Any RTSP stream carrying audio, from a camera you already own |
 | Detector | BirdNET-Go with the BirdNET v2.4 model, around 6,500 species |
 | Transport | MQTT with Home Assistant auto-discovery |
-| Presentation | Home Assistant dashboard, plus the Saezuri collage |
+| Presentation | Home Assistant dashboard with the Bird Card collage, plus the Saezuri web interface |
 | Extra hardware | None |
 | CPU load | Around 34 % of an AMD Athlon 3000G per audio stream |
 | Runs on | Docker Compose, x86 or ARM, a Raspberry Pi included |
@@ -51,8 +51,10 @@ flowchart LR
 - Four Home Assistant sensors that survive restarts: last species, species total, species today,
   detections today.
 - A push notification on every species new to the garden.
-- A Home Assistant dashboard with counters, an hourly chart, species lists, and the collage in a panel view.
-- An illustrated collage that pulls artwork from a free library and generates the rest on demand.
+- A Home Assistant dashboard with counters, an hourly chart, species lists, and the collage as a native
+  card in a panel view.
+- An illustrated collage, twice over: the [Bird Card](https://github.com/adamoberley/HABirdDashboard) draws
+  it inside Home Assistant, and Saezuri serves its own page for the same species.
 
 ## Requirements
 
@@ -61,6 +63,7 @@ flowchart LR
 | Camera | RTSP stream carrying audio; a wide-band track (48 kHz Opus) beats a narrow-band one (16 kHz AAC) |
 | Host | Docker with Compose v2; roughly one third of a modern x86 core per audio stream |
 | Home Assistant | Optional; needs an MQTT broker and the MQTT integration |
+| HACS | Optional; for the ApexCharts, Mushroom and Bird Card frontend cards |
 | Reverse proxy | Optional; the runbook uses Caddy with an internal CA |
 | Gemini API key | Optional; only for generating artwork Saezuri cannot download |
 
@@ -129,12 +132,14 @@ Four connections do leave the machine, all of them on the server side, none of t
 | Connection | Purpose | How to avoid it |
 |---|---|---|
 | jsDelivr CDN | Saezuri downloads ready-made artwork from the free `vrwrts/saezuri-illustrations` library | Set `ILLUSTRATIONS_REPO` to empty and supply your own images |
+| jsDelivr CDN, from the browser | The Bird Card lazy-loads one PNG per species it shows | Copy the card's `avian/assets/` to `/config/www/habird-art/` and set `image_base: /local/habird-art/` |
 | Wikimedia Commons | Saezuri fetches one freely licensed reference call per species and caches it | Leave the species cards without a call |
 | Gemini API | Generates artwork for species the library lacks, at roughly 0.039 US dollars per image | Leave `GEMINI_API_KEY` unset; those species then show no tile |
 | Container registry | `docker compose pull` fetches new images | Update on your own schedule |
 
-The browser adds nothing: it talks only to Saezuri's own origin and to Home Assistant, never to a third
-party.
+Saezuri's own page adds nothing: the browser talks only to Saezuri's origin. The Bird Card runs inside
+Home Assistant and queries BirdNET-Go on your network directly; its artwork is the one CDN call it makes,
+and `image_base` removes that too.
 
 BirdNET-Go can reach outwards for things this runbook leaves off: uploading detections to BirdWeather,
 fetching weather data, and error telemetry, which requires explicit opt-in. Each one is a switch in its
@@ -234,6 +239,8 @@ non-public conversation in § 201 StGB.
 
 - [tphakala/birdnet-go](https://github.com/tphakala/birdnet-go) for the detector and its web interface.
 - [vrwrts/saezuri](https://github.com/vrwrts/saezuri) for the collage and the illustration library.
+- [adamoberley/HABirdDashboard](https://github.com/adamoberley/HABirdDashboard) for the Bird Card, which
+  brings the collage into the dashboard itself.
 - [BirdNET](https://birdnet.cornell.edu/) by the K. Lisa Yang Center for Conservation Bioacoustics.
 
 ## License

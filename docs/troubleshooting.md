@@ -54,9 +54,19 @@ between detections. Point the logbook card at `sensor.last_bird_species` instead
 **The threshold does nothing.** Check the scale in Developer tools. When confidence reads 82 rather than
 0.82, the threshold in the template file is 75 and the factor 100 in the dashboard goes away.
 
-**The collage frame stays empty.** The browser refuses the embedding. Add a `Content-Security-Policy` header
-with `frame-ancestors` for your Home Assistant address to the Saezuri virtual host; the Caddyfile snippet
-carries the line, commented out.
+**The Bird Card stays empty.** The browser cannot reach `birdnet_url`. BirdNET-Go publishes on loopback
+only, so the card needs the reverse proxy name, and it must be HTTPS: an HTTP call from an HTTPS dashboard
+is blocked as mixed content. With `data_source: auto` the card falls back to the Home Assistant history of
+the MQTT sensors, so an empty collage means those are missing too.
+
+**The Bird Card shows a species without artwork.** The bundled library covers 1,283 species; regions beyond
+North America, Europe and Australia have gaps. The BirdNET-Go Species page lists every species your range
+filter admits, so the gap is finite and visible in advance. Add your own PNGs under `/config/www/habird-art/`
+and point `image_base` there.
+
+**The Saezuri iframe stays empty.** This applies to the iframe variant rather than the card: the browser
+refuses the embedding. Add a `Content-Security-Policy` header with `frame-ancestors` for your Home Assistant
+address to the Saezuri virtual host; the Caddyfile snippet carries the line, commented out.
 
 ## Illustrations
 

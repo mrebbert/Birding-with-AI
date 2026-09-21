@@ -57,6 +57,17 @@ loopback port. The two services share a Compose network, so the detour through t
 Both projects move fast and ship fixes worth having. The rollback path runs over the digest of the previous
 image, which stays available locally after a pull. See [operations.md](operations.md#updates).
 
+## The collage twice: a card in the dashboard, Saezuri beside it
+
+The [Bird Card](https://github.com/adamoberley/HABirdDashboard) renders the collage natively in Home
+Assistant, which an iframe of Saezuri did before. The card wins on integration: it follows the theme, its
+taps open entity details, and it drops the `frame-ancestors` header the embedding needed. It reads
+BirdNET-Go's API from the browser and falls back to the history of the MQTT sensors.
+
+Saezuri keeps running alongside rather than being removed. It owns the illustration pipeline, generating
+artwork for species the libraries lack, and it serves that collage to anyone without a Home Assistant
+login. Two consumers of the same detections, each with its own strength.
+
 ## Local inference, outbound connections by exception
 
 The detector, the database and both web interfaces run on one machine with no dependency on a remote

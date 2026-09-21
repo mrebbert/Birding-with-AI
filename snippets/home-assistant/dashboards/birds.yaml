@@ -87,11 +87,33 @@ views:
           - sensor.last_bird_species
         hours_to_show: 24
 
+  # The Bird Card, installed from HACS as a custom repository:
+  # https://github.com/adamoberley/HABirdDashboard, type Dashboard.
+  # It draws the collage inside Home Assistant, so no iframe is involved.
   - title: Collage
     path: collage
     icon: mdi:image-multiple
     panel: true
     cards:
-      - type: iframe
-        url: https://SAEZURI_HOSTNAME
-        aspect_ratio: 100%
+      - type: custom:habird-card
+        view: collage
+        # The browser queries BirdNET-Go directly, so this address must be
+        # reachable from the browser. Use the HTTPS name from the reverse
+        # proxy: the loopback port is unreachable, and plain HTTP on an
+        # HTTPS dashboard is blocked as mixed content.
+        birdnet_url: https://BIRDNET_HOSTNAME
+        # auto: the API first, Home Assistant history as the fallback.
+        data_source: auto
+        ha_sensors:
+          - sensor.birdnet_go_SOURCE_SLUG_scientific_name
+        names: common
+        window: "24"
+        sit_confidence: 0.90
+        tap_action: info
+        clock: false
+        weather: false
+        background: transparent
+        # Artwork lazy-loads per species from a CDN. For a fully local
+        # install, copy the card's avian/assets/ to /config/www/habird-art/
+        # and uncomment:
+        # image_base: /local/habird-art/

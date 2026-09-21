@@ -357,7 +357,12 @@ directory, owned by 1000:1000.
 
 Create a dashboard under Settings → Dashboards → Add dashboard, then paste
 `build/home-assistant/dashboards/birds.yaml` into the raw configuration editor (template:
-[`snippets/home-assistant/dashboards/birds.yaml`](snippets/home-assistant/dashboards/birds.yaml)). It needs the HACS cards ApexCharts and Mushroom plus the four sensors from step 6.
+[`snippets/home-assistant/dashboards/birds.yaml`](snippets/home-assistant/dashboards/birds.yaml)). It needs
+the four sensors from step 6 and three HACS cards: ApexCharts, Mushroom, and the Bird Card.
+
+ApexCharts and Mushroom come from the HACS default list. The Bird Card is a custom repository: in HACS open
+the three-dot menu → Custom repositories, add `https://github.com/adamoberley/HABirdDashboard` with type
+**Dashboard**, then search for **Bird Card** and download it.
 
 Three details proved necessary in operation:
 
@@ -367,11 +372,28 @@ Three details proved necessary in operation:
   "Unknown" and "Unavailable".
 - **`entity` on the counter cards.** A tap then opens the entity with its history.
 
-The collage gets a view of its own with `panel: true` and uses the full width.
+The collage gets a view of its own with `panel: true` and uses the full width. The Bird Card draws it
+natively inside Home Assistant, which keeps the theme, the tap actions and the light and dark modes
+consistent with the rest of the dashboard.
 
-> **Empty frame?** When the browser refuses the embedding, Saezuri lacks the permission for it. Add a header
-> with `frame-ancestors` for your Home Assistant address to the Saezuri virtual host and reload the proxy.
-> The Caddyfile snippet carries the line, commented out.
+Three values decide whether the card fills:
+
+- **`birdnet_url` must be reachable from the browser.** BirdNET-Go publishes on loopback only, so this is
+  the HTTPS name from step 3. Plain HTTP on an HTTPS dashboard is blocked as mixed content.
+- **`data_source: auto`** queries that API first and falls back to the Home Assistant history of the MQTT
+  sensors whenever the browser cannot reach it. The collage keeps working either way, with less depth on
+  the fallback.
+- **`ha_sensors`** pins the scientific-name sensor of your source. The card discovers several microphones
+  on its own and sums them; the list is for choosing.
+
+Artwork lazy-loads per species from a CDN, one PNG each, cached by the browser. For an install with no
+route to the internet, copy the card's `avian/assets/` to `/config/www/habird-art/` and set
+`image_base: /local/habird-art/`.
+
+> **Prefer an iframe?** Saezuri keeps serving its own interface at `https://SAEZURI_HOSTNAME`, and a
+> `type: iframe` card embeds it. The browser then needs permission for the embedding: add a header with
+> `frame-ancestors` for your Home Assistant address to the Saezuri virtual host and reload the proxy. The
+> Caddyfile snippet carries the line, commented out.
 
 ---
 
