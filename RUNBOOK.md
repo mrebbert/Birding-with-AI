@@ -240,6 +240,18 @@ The full list of keys lives in the project's
 background on both controls in the
 [BirdNET-Go guide](https://github.com/tphakala/birdnet-go/wiki/BirdNET-Go-Guide).
 
+### What the interface shows once it runs
+
+The analytics summary counts detections and species over the chosen period and ranks the top ten. The bell
+announces every species new to the station.
+
+![BirdNET-Go analytics summary with total detections, unique species, a top ten chart and new-species notifications](img/birdnet-go/birdnet-go-analytics-summary.png)
+
+The species list carries every species heard, with its detection count, its mean confidence and the day it
+first arrived. This is also where a false positive gets marked.
+
+![BirdNET-Go species list with photo, detection count, confidence and first detection per species](img/birdnet-go/birdnet-go-species-list.png)
+
 ## Step 5: MQTT and Home Assistant
 
 Check name resolution inside the container first. The image carries no network tools, so `getent` replaces
@@ -303,6 +315,8 @@ docker compose logs -f saezuri
 
 **Checkpoint:** `https://SAEZURI_HOSTNAME` shows the collage with species names in your locale; a click
 opens the card with a reference call.
+
+![Saezuri page titled Recently heard, with time filters and a collage of 21 species](img/saezuri/saezuri-collage.png)
 
 A `401` in the log means an API token is missing: create one in BirdNET-Go and add it as `BIRDNETGO_TOKEN`
 to the Compose block. It stays server-side and never reaches the browser.
@@ -385,6 +399,19 @@ Three values decide whether the card fills:
   the fallback.
 - **`ha_sensors`** pins the scientific-name sensor of your source. The card discovers several microphones
   on its own and sums them; the list is for choosing.
+
+The card carries three views behind a switcher. Statistics counts detections per species and hour, and
+names the top species and the newest arrivals.
+
+![Bird Card statistics: a species by hour heatmap with top species and first detections](img/home-assistant/bird-card-statistics.png)
+
+The atlas lays out one card per species, each with its count for today and in total.
+
+![Bird Card atlas with one illustrated card per species, showing counts for today and in total](img/home-assistant/bird-card-atlas.png)
+
+A tap opens the species, with its description, the counts, and every recording your own station caught.
+
+![Bird Card species detail with illustration, description, counts and the list of recordings](img/home-assistant/bird-card-species-detail.png)
 
 Artwork lazy-loads per species from a CDN, one PNG each, cached by the browser. For an install with no
 route to the internet, copy the card's `avian/assets/` to `/config/www/habird-art/` and set

@@ -8,9 +8,10 @@ secrets/
 build/
 out/
 
-# Container data, never commit
-birdnet-go/
-saezuri/
+# Container data at the stack root, never commit.
+# Anchored with a leading slash so img/birdnet-go/ and img/saezuri/ stay tracked.
+/birdnet-go/
+/saezuri/
 *.db
 *.sqlite
 *.bak

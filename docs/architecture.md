@@ -68,6 +68,11 @@ Saezuri keeps running alongside rather than being removed. It owns the illustrat
 artwork for species the libraries lack, and it serves that collage to anyone without a Home Assistant
 login. Two consumers of the same detections, each with its own strength.
 
+What the integration buys, in one picture: a species new to the garden, its description, when it first
+arrived, and the recordings the station caught, all without leaving the dashboard.
+
+![Species detail of a ring-necked parakeet in the Bird Card, with description, counts and two recordings](../img/home-assistant/bird-card-new-species-detail.png)
+
 ## Local inference, outbound connections by exception
 
 The detector, the database and both web interfaces run on one machine with no dependency on a remote

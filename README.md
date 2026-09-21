@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="img/saezuri.png"
+  <img src="img/saezuri/saezuri-collage-compact.png"
        alt="Saezuri collage: seven bird species heard in the last 24 hours, drawn in Japanese woodblock style"
        width="520">
 </p>
@@ -56,6 +56,18 @@ flowchart LR
 - An illustrated collage, twice over: the [Bird Card](https://github.com/adamoberley/HABirdDashboard) draws
   it inside Home Assistant, and Saezuri serves its own page for the same species.
 
+## What it looks like
+
+The Home Assistant dashboard: the last species with its confidence, three counters, detections per hour,
+the species heard today and since the start, and the logbook.
+
+![Home Assistant dashboard with the last bird species, counters, an hourly chart and species lists](img/home-assistant/ha-dashboard-overview.png)
+
+The same detections as a collage, drawn by the Bird Card in a panel view. Every bird in the picture was
+heard, and the loudest talkers are drawn largest.
+
+![Bird Card collage: the species heard in the last 24 hours, drawn in Japanese woodblock style](img/home-assistant/bird-card-collage.png)
+
 ## Requirements
 
 | Component | Requirement |
@@ -94,7 +106,7 @@ Then follow [RUNBOOK.md](RUNBOOK.md) from step 0. It takes about 60 minutes incl
 | [docs/troubleshooting.md](docs/troubleshooting.md) | Every trap this installation hit, with the fix |
 | [snippets/](snippets/) | Compose file, Caddyfile, Home Assistant YAML, all carrying placeholders |
 | [snippets/scripts/](snippets/scripts/) | Four helper scripts, all reading the same `.env` |
-| [img/](img/) | Screenshots used in the documentation |
+| [img/](img/) | Screenshots, one folder per component |
 | [CITATION.cff](CITATION.cff) | Machine-readable metadata for citing this work |
 
 ## Placeholders

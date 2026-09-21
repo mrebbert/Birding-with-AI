@@ -3,7 +3,20 @@
 ## Read the clock before you judge the system
 
 Most detections fall into the first hour after sunrise. A quiet afternoon says nothing about whether the
-chain works.
+chain works. BirdNET-Go's own analytics make the pattern visible: the dunnock sings for two hours around
+dawn and then stops, while the magpie calls all day and peaks in the late afternoon.
+
+![Ridgeline chart of hour-of-day activity per species, separating dawn singers from all-day birds](../img/birdnet-go/birdnet-go-who-sings-when.png)
+
+Stacked, the same day reads as a handover between species, the dawn chorus giving way to the daytime
+callers.
+
+![Stacked area chart showing how the top species hand off through the day](../img/birdnet-go/birdnet-go-acoustic-succession.png)
+
+Averaged over several days, the shape stabilises, and that average is the baseline to judge a quiet morning
+against.
+
+![Line chart of average detections per hour and species over the selected period](../img/birdnet-go/birdnet-go-detections-by-hour.png)
 
 ## End-to-end test
 
